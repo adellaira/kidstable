@@ -1,7 +1,0 @@
-nome,indirizzo,lat,lng,area_giochi,fasciatoio,menu_bimbi,animazione
-La Casa del Gelato,Via Achille Grandi 52 Peschiera Borromeo,45.4287,9.2974,Sì,Sì,Sì,Sì
-The Meatball Family (Galleria Borromea),Via della Liberazione 8 Peschiera Borromeo,45.4357,9.2936,No,Sì,Sì,No
-Ristorante Al Maneggio,Via Veneto 3 Peschiera Borromeo,45.4542,9.3015,Sì,Sì,Sì,No
-Ristorante Pizzeria Vitelloni,Via Trieste 21 Peschiera Borromeo,45.4332,9.2905,Sì,Sì,Sì,Sì
-Bar Trattoria Family,Via Papa Giovanni XXIII 33 Peschiera Borromeo,45.4351,9.2912,No,No,Sì,No
-MAD Pizza Burger & Grill,Via Achille Grandi 33 Peschiera Borromeo,45.4295,9.2965,No,Sì,Sì,No
