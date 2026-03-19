@@ -96,5 +96,37 @@ function renderLocali(data) {
     document.getElementById('lista-locali').innerHTML = html;
 }
 
+let activeFilters = [];
+
+function toggleFilter(btn, filterKey) {
+    // Estetica del bottone
+    btn.classList.toggle('active');
+    
+    // Gestione della lista filtri attivi
+    if (activeFilters.includes(filterKey)) {
+        activeFilters = activeFilters.filter(f => f !== filterKey);
+    } else {
+        activeFilters.push(filterKey);
+    }
+    
+    // Applica il filtro ai dati originali
+    applyFilters();
+}
+
+function applyFilters() {
+    let filteredData = localiData;
+
+    // Se ci sono filtri attivi, filtra l'array
+    if (activeFilters.length > 0) {
+        filteredData = localiData.filter(locale => {
+            // Controlla se il locale ha "Sì" per TUTTI i filtri selezionati
+            return activeFilters.every(filter => locale[filter] === 'Sì');
+        });
+    }
+
+    renderLocali(filteredData);
+}
+
+
 // Avvio al caricamento della pagina
 window.onload = loadLocals;
