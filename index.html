@@ -11,169 +11,117 @@
     
     <style>
         :root {
-            --orange-pastel: #FFDAB9; /* Pesca/Arancio chiaro */
-            --orange-dark: #FF8C42;   /* Arancio vivace per bottoni */
-            --cream: #FFF9F5;         /* Sfondo card */
-            --text-color: #5D4037;    /* Marrone scuro per leggibilità */
+            --orange-pastel: #FFDAB9;
+            --orange-dark: #FF8C42;
+            --cream: #FFF9F5;
+            --text-color: #5D4037;
         }
 
         body {
             background-color: var(--orange-pastel);
             font-family: 'Nunito', sans-serif;
             color: var(--text-color);
+            padding-bottom: 50px;
         }
 
-        h1, h5 {
-            font-family: 'Fredoka', sans-serif;
-            color: var(--orange-dark);
-        }
+        h5 { font-family: 'Fredoka', sans-serif; color: var(--orange-dark); }
 
         .navbar {
             background-color: white !important;
             border-bottom: 4px solid var(--orange-dark);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .navbar-brand {
             color: var(--orange-dark) !important;
             font-weight: 600;
             font-size: 1.5rem;
+            font-family: 'Fredoka', sans-serif;
         }
 
-        .btn-primary {
-            background-color: var(--orange-dark);
-            border: none;
-            border-radius: 25px;
-            font-weight: bold;
-            padding: 10px 20px;
+        /* Styling Filtri */
+        .filter-container {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 0;
+            gap: 10px;
+            -webkit-overflow-scrolling: touch;
         }
+        
+        .filter-container::-webkit-scrollbar { display: none; } /* Nasconde scrollbar su mobile */
 
-        .btn-primary:hover {
-            background-color: #e6762d;
-        }
-
-        .btn-outline-primary {
+        .btn-filter {
+            background-color: white;
+            border: 2px solid var(--orange-dark);
             color: var(--orange-dark);
-            border-color: var(--orange-dark);
-            border-radius: 25px;
-            background: white;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-filter.active {
+            background-color: var(--orange-dark);
+            color: white;
         }
 
         .card-locale {
             background-color: var(--cream);
             border-radius: 20px;
             margin-bottom: 20px;
-            border: 2px solid rgba(255, 140, 66, 0.1);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-
-        .card-locale:active {
-            transform: scale(0.98);
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
         .badge-kids {
             background-color: #FFE5D4;
             color: #D35400;
             margin-right: 5px;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 10px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             display: inline-block;
             margin-top: 5px;
         }
 
-        .icon-header {
-            font-size: 1.2rem;
-            margin-right: 5px;
+        .btn-primary {
+            background-color: var(--orange-dark);
+            border: none;
+            border-radius: 15px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-<nav class="navbar sticky-top">
+<nav class="navbar">
     <div class="container-fluid justify-content-center">
-        <span class="navbar-brand">🧡 KidsTableTribe</span>
+        <span class="navbar-brand text-center">🧡 KidsTableTribe</span>
     </div>
 </nav>
 
-<div class="container mt-4">
-    <div class="text-center mb-4">
-        <p class="lead">Trova il posto perfetto per la tua famiglia 🍼</p>
-        <button onclick="getLocation()" class="btn btn-outline-primary w-100 shadow-sm">
-            📍 Cerca vicino a me
-        </button>
+<div class="container mt-3">
+    <button onclick="getLocation()" class="btn btn-outline-primary btn-location w-100 shadow-sm mb-3" style="border-radius: 20px; border-width: 2px; font-weight: bold;">
+        📍 Cerca vicino a me
+    </button>
+
+    <div class="filter-container">
+        <button class="btn-filter" onclick="toggleFilter(this, 'area_giochi')">🎡 Area Giochi</button>
+        <button class="btn-filter" onclick="toggleFilter(this, 'fasciatoio')">👶 Fasciatoio</button>
+        <button class="btn-filter" onclick="toggleFilter(this, 'menu_bimbi')">🍝 Menù Bimbi</button>
+        <button class="btn-filter" onclick="toggleFilter(this, 'animazione')">🎨 Animazione</button>
     </div>
-    
+
+    <hr class="opacity-10">
+
     <div id="lista-locali" class="row">
         </div>
 </div>
 
-<script>
-    const csvUrl = 'locali.csv';
-
-    function loadLocals() {
-        Papa.parse(csvUrl, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                if(results.data.length > 0) {
-                    renderLocali(results.data);
-                } else {
-                    showError("Il file CSV sembra vuoto.");
-                }
-            },
-            error: function() {
-                showError("Caricamento in corso... assicurati che locali.csv sia su GitHub!");
-            }
-        });
-    }
-
-    function renderLocali(data) {
-        let html = '';
-        data.forEach(locale => {
-            if(!locale.nome) return;
-            html += `
-                <div class="col-12 col-md-6">
-                    <div class="card card-locale p-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h5 class="mb-1">${locale.nome}</h5>
-                        </div>
-                        <p class="text-muted small mb-3">${locale.indirizzo}</p>
-                        <div class="mb-3">
-                            ${locale.area_giochi === 'Sì' ? '<span class="badge-kids">🎡 Area Giochi</span>' : ''}
-                            ${locale.fasciatoio === 'Sì' ? '<span class="badge-kids">👶 Fasciatoio</span>' : ''}
-                            ${locale.menu_bimbi === 'Sì' ? '<span class="badge-kids">🍝 Menù Bimbi</span>' : ''}
-                            ${locale.animazione === 'Sì' ? '<span class="badge-kids">🎨 Animazione</span>' : ''}
-                        </div>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locale.nome + ' ' + locale.indirizzo)}" 
-                           target="_blank" 
-                           class="btn btn-primary w-100">
-                           Vedi sulla Mappa
-                        </a>
-                    </div>
-                </div>
-            `;
-        });
-        document.getElementById('lista-locali').innerHTML = html;
-    }
-
-    function showError(msg) {
-        document.getElementById('lista-locali').innerHTML = `
-            <div class="text-center p-5">
-                <p>${msg}</p>
-            </div>
-        `;
-    }
-
-    function getLocation() {
-        if (navigator.geolocation) {
-            alert("Ricerca locali vicini attivata! (Logica di ordinamento in arrivo)");
-        }
-    }
-
-    window.onload = loadLocals;
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
