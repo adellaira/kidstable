@@ -96,3 +96,54 @@ function apriDettagli(nomeLocale) {
     document.getElementById('imgKit').src = locale.foto_tovaglietta || 'img/no-photo.jpg';
     new bootstrap.Modal(document.getElementById('modalDettagli')).show();
 }
+
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Impedisce a Chrome (Android) di mostrare il banner automatico brutto
+    e.preventDefault();
+    deferredPrompt = e;
+    // Mostra il nostro banner personalizzato
+    showInstallBanner("Installa ora");
+});
+
+window.addEventListener('load', () => {
+    // Controllo speciale per iOS (Safari non supporta beforeinstallprompt)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+    if (isIOS && !isStandalone) {
+        showInstallBanner("Scopri come");
+        document.getElementById('pwa-instruction').innerText = "Premi 'Condividi' e poi 'Aggiungi alla Home'";
+        document.getElementById('btn-pwa-install').onclick = () => {
+            alert("Su iPhone: premi il tasto 'Condividi' (quadrato con freccia) e seleziona 'Aggiungi alla schermata Home' 📲");
+        };
+    }
+});
+
+function showInstallBanner(btnText) {
+    const banner = document.getElementById('pwa-install-banner');
+    const btn = document.getElementById('btn-pwa-install');
+    if (banner) {
+        banner.classList.remove('d-none');
+        btn.innerText = btnText;
+    }
+}
+
+function closePwaBanner() {
+    document.getElementById('pwa-install-banner').classList.add('d-none');
+}
+
+// Gestione click su Android
+document.getElementById('btn-pwa-install')?.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            console.log('Utente ha installato KidsTable');
+        }
+        deferredPrompt = null;
+        closePwaBanner();
+    }
+});
+
