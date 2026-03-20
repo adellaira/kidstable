@@ -1,7 +1,4 @@
-nome,indirizzo,lat,lng,area_giochi,fasciatoio,menu_bimbi,animazione
-La Casa del Gelato,Via Achille Grandi 52 Peschiera Borromeo,45.4287,9.2974,Sì,Sì,Sì,Sì
-The Meatball Family (Galleria Borromea),Via della Liberazione 8 Peschiera Borromeo,45.4357,9.2936,No,Sì,Sì,No
-Ristorante Al Maneggio,Via Veneto 3 Peschiera Borromeo,45.4542,9.3015,Sì,Sì,Sì,No
-Ristorante Pizzeria Vitelloni,Via Trieste 21 Peschiera Borromeo,45.4332,9.2905,Sì,Sì,Sì,Sì
-Bar Trattoria Family,Via Papa Giovanni XXIII 33 Peschiera Borromeo,45.4351,9.2912,No,No,Sì,No
-MAD Pizza Burger & Grill,Via Achille Grandi 33 Peschiera Borromeo,45.4295,9.2965,No,Sì,Sì,No
+nome,indirizzo,lat,lng,area_giochi_interna,area_giochi_esterna,fasciatoio,tovagliette_da_colorare,menu_bimbi,telefono,foto_giochi_interna,foto_giochi_esterna,foto_fasciatoio,foto_tovaglietta
+La Casa del Gelato,Via Achille Grandi 52 Peschiera Borromeo,45.4287,9.2974,No,Sì,Sì,No,Sì,0290633320,img/interno1.jpg,img/esterno1.jpg,img/bagno1.jpg,img/tovaglietta1.jpg
+Ristorante Vitelloni,Via Trieste 21 Peschiera Borromeo,45.4332,9.2905,Sì,No,Sì,Sì,Sì,0255301822,img/interno2.jpg,img/esterno2.jpg,img/bagno2.jpg,img/tovaglietta2.jpg
+Pizzeria La Sorgente,Via Dante 10 Peschiera Borromeo,45.4305,9.2930,No,No,Sì,Sì,Sì,0255300123,,,img/bagno3.jpg,img/tovaglietta3.jpg
