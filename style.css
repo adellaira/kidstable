@@ -30,3 +30,23 @@ body { background-color: var(--orange-pastel); font-family: 'Nunito', sans-serif
 .item-gallery { min-width: 180px; flex-shrink: 0; }
 .item-gallery img { height: 130px; width: 100%; object-fit: cover; background: #f0f0f0; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+.pwa-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: white;
+    z-index: 9999;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 2px solid var(--orange-dark);
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.x-small { font-size: 0.75rem; }
