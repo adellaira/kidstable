@@ -1,5 +1,5 @@
-// Cambia 'v1' in 'v2', 'v3', ecc. ogni volta che aggiorni il sito!
-const CACHE_NAME = 'kidstable-v1.02'; 
+// Incrementa questo numero ogni volta che carichi modifiche su GitHub
+const CACHE_NAME = 'kidstable-v1.03'; 
 
 const ASSETS = [
   './',
@@ -10,29 +10,48 @@ const ASSETS = [
   'KidsTable.png'
 ];
 
-// Installazione
+// Installazione: scarica i file iniziali
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
   );
-  self.skipWaiting(); // Forza l'attivazione immediata
+  self.skipWaiting(); 
 });
 
-// Pulizia vecchie cache
+// Attivazione: cancella automaticamente le vecchie versioni della cache
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key);
+          if (key !== CACHE_NAME) {
+            console.log('PWA: Rimozione vecchia cache', key);
+            return caches.delete(key);
+          }
         })
       );
     })
   );
+  return self.clients.claim();
 });
 
+// Gestione Richieste: Strategia "Network First"
+// Prova a scaricare dal web, se non c'è connessione usa la cache.
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((res) => res || fetch(e.request))
+    fetch(e.request)
+      .then((response) => {
+        // Se la rete risponde, salva una copia aggiornata in cache
+        return caches.open(CACHE_NAME).then((cache) => {
+          cache.put(e.request, response.clone());
+          return response;
+        });
+      })
+      .catch(() => {
+        // Se la rete fallisce (sei offline), usa la cache
+        return caches.match(e.request);
+      })
   );
 });
