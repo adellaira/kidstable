@@ -26,8 +26,12 @@ function getLocation() {
     }
 
     const btn = document.querySelector('.btn-location');
-    const originalText = btn.innerHTML;
+    const helpBox = document.getElementById('gps-help');
+    const helpIos = document.getElementById('help-text-ios');
+    const helpAndroid = document.getElementById('help-text-android');
+
     btn.innerHTML = "⌛ Ricerca posizione...";
+    helpBox.classList.add('d-none'); // Nascondi se era aperto
 
     navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -35,28 +39,27 @@ function getLocation() {
             updateDistances();
             btn.innerHTML = "📍 Posizione Attiva";
             btn.classList.add('active');
+            helpBox.classList.add('d-none'); // Tutto ok, nascondi aiuto
         },
         (err) => {
             btn.innerHTML = "📍 Cerca vicino a me";
-            // Gestione errori specifica per aiutare l'utente
-            switch(err.code) {
-                case 1:
-                    alert("Per favore, autorizza l'accesso al GPS nelle impostazioni del tuo browser per vedere i locali vicini.");
-                    break;
-                case 2:
-                    alert("Posizione non disponibile. Controlla di avere il GPS attivo sul telefono.");
-                    break;
-                case 3:
-                    alert("Il tempo per trovare la tua posizione è scaduto. Riprova tra un momento.");
-                    break;
+            
+            if (err.code === 1) { // PERMISSION_DENIED
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                helpBox.classList.remove('d-none');
+                
+                if (isIOS) {
+                    helpIos.classList.remove('d-none');
+                    helpAndroid.classList.add('d-none');
+                } else {
+                    helpAndroid.classList.remove('d-none');
+                    helpIos.classList.add('d-none');
+                }
+            } else {
+                alert("Non riesco a trovarti. Controlla che il GPS sia attivo nelle impostazioni del telefono.");
             }
-            console.warn(`Errore GPS (${err.code}): ${err.message}`);
         },
-        { 
-            enableHighAccuracy: true, // Forza l'uso del GPS reale invece del Wi-Fi
-            timeout: 10000,           // Attesa massima 10 secondi
-            maximumAge: 0             // Non usare posizioni vecchie in cache
-        }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
 }
 
