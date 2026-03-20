@@ -49,6 +49,26 @@
     </nav>
 
     <div class="container mt-3">
+     
+<div id="gps-help" class="d-none mt-2 p-3 bg-light rounded-4 border border-warning shadow-sm">
+    <div class="d-flex justify-content-between align-items-start">
+        <div class="small">
+            <p class="fw-bold mb-1 text-dark">📍 Problemi con la posizione?</p>
+            <div id="help-text-ios" class="d-none">
+                1. Tocca l'icona <span class="fw-bold text-primary">AA</span> o <img src="https://img.icons8.com/ios/20/settings.png"> nella barra dell'indirizzo.<br>
+                2. Seleziona <b>Impostazioni sito web</b>.<br>
+                3. Imposta <b>Posizione</b> su <b>Consenti</b>.
+            </div>
+            <div id="help-text-android" class="d-none">
+                1. Tocca i <span class="fw-bold text-primary">⋮ tre puntini</span> in alto a destra.<br>
+                2. Tocca l'icona <img src="https://img.icons8.com/ios/20/info.png"> <b>Informazioni</b> o il lucchetto.<br>
+                3. Vai su <b>Autorizzazioni</b> e attiva la <b>Posizione</b>.
+            </div>
+        </div>
+        <button onclick="document.getElementById('gps-help').classList.add('d-none')" class="btn-close btn-sm"></button>
+    </div>
+</div>
+
         
         <button onclick="getLocation()" class="btn btn-location w-100 shadow-sm mb-3">
             📍 Cerca vicino a me
