@@ -1,0 +1,21 @@
+{
+  "name": "KidsTable",
+  "short_name": "KidsTable",
+  "description": "Trova i locali baby-friendly vicino a te",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#FFDAB9",
+  "theme_color": "#FF8C42",
+  "icons": [
+    {
+      "src": "KidsTable.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "KidsTable.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
