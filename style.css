@@ -3,124 +3,100 @@
     --orange-dark: #FF8C42;
     --cream: #FFF9F5;
     --text-color: #5D4037;
+    --kids-blue: #007AFF; /* Blu Apple style per i KM */
 }
 
 body {
     background-color: var(--orange-pastel);
     font-family: 'Nunito', sans-serif;
     color: var(--text-color);
-    padding-bottom: 40px;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* Navbar e Logo */
-.navbar {
-    border-bottom: 3px solid var(--orange-dark);
-}
+/* Navbar & Logo */
+.navbar { border-bottom: 3px solid var(--orange-dark); padding: 10px 0; }
+#main-logo { height: 42px; width: auto; display: block; }
 
-#main-logo {
-    height: 45px; /* Altezza ottimale per mobile */
-    width: auto;
-    display: block;
-    transition: transform 0.2s ease;
-}
-
-#main-logo:active {
-    transform: scale(0.92);
-}
-
-/* Pulsante Posizione */
+/* Tasto Posizione */
 .btn-location {
     background-color: white;
     border: 2px solid var(--orange-dark);
     color: var(--orange-dark);
-    border-radius: 20px;
+    border-radius: 25px;
     font-weight: 800;
-    padding: 10px;
-    text-transform: uppercase;
-    font-size: 0.9rem;
+    padding: 12px;
+    transition: all 0.3s ease;
 }
-
-.btn-location.success {
-    background-color: #2ecc71;
-    border-color: #27ae60;
+.btn-location.active {
+    background-color: #28a745;
+    border-color: #218838;
     color: white;
 }
 
-/* Filtri Scrollabili */
+/* Filtri */
 .filter-container {
     display: flex;
     overflow-x: auto;
     gap: 8px;
-    padding: 5px 0;
-    -webkit-overflow-scrolling: touch;
+    padding: 10px 0;
+    scrollbar-width: none;
 }
 .filter-container::-webkit-scrollbar { display: none; }
 
 .btn-filter {
     background-color: white;
-    border: 2px solid rgba(255, 140, 66, 0.3);
+    border: 2px solid var(--orange-dark);
     color: var(--orange-dark);
-    border-radius: 18px;
-    padding: 6px 14px;
-    font-size: 0.8rem;
+    border-radius: 20px;
+    padding: 6px 15px;
+    font-size: 0.85rem;
     font-weight: 700;
     white-space: nowrap;
-    transition: 0.2s;
 }
-
 .btn-filter.active {
     background-color: var(--orange-dark);
-    border-color: var(--orange-dark);
     color: white;
-    box-shadow: 0 4px 8px rgba(255, 140, 66, 0.3);
 }
 
-/* Card Locali */
+/* Card */
 .card-locale {
     background-color: var(--cream);
     border: none;
-    border-radius: 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.04);
+    border-radius: 25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    transition: transform 0.2s;
 }
+.card-locale h5 { font-family: 'Fredoka', sans-serif; color: var(--orange-dark); font-weight: 600; }
 
-.card-locale h5 {
-    font-family: 'Fredoka', sans-serif;
-    color: var(--orange-dark);
-    font-weight: 600;
-}
-
-.counter-text {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #a0522d;
+/* Chilometri Blu - Evidenti */
+.text-primary {
+    color: var(--kids-blue) !important;
+    font-weight: 800 !important;
+    background: rgba(0, 122, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 6px;
 }
 
 .badge-kids {
     background-color: white;
     color: #D35400;
     border: 1px solid #FFDAB9;
-    padding: 5px 10px;
+    padding: 4px 10px;
     border-radius: 10px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 700;
+    margin: 4px 4px 0 0;
     display: inline-block;
-    margin: 3px 3px 0 0;
 }
 
-/* Pulsante Maps */
 .btn-maps {
     background-color: var(--orange-dark);
     color: white;
-    border: none;
-    border-radius: 12px;
+    border-radius: 15px;
     font-weight: 800;
-    padding: 10px;
-    text-decoration: none;
-    display: block;
+    padding: 12px;
     text-align: center;
-    margin-top: 12px;
-    font-size: 0.9rem;
+    display: block;
+    text-decoration: none;
+    margin-top: 10px;
 }
-
-.btn-maps:hover { color: white; opacity: 0.9; }
