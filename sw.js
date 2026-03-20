@@ -1,5 +1,5 @@
 // Cambia 'v1' in 'v2', 'v3', ecc. ogni volta che aggiorni il sito!
-const CACHE_NAME = 'kidstable-v1.01'; 
+const CACHE_NAME = 'kidstable-v1.02'; 
 
 const ASSETS = [
   './',
