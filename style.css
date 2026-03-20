@@ -100,3 +100,20 @@ body {
     text-decoration: none;
     margin-top: 10px;
 }
+
+/* Impedisce al browser di trasformare indirizzi e nomi in link automatici */
+.card-locale h5, 
+.card-locale p {
+    pointer-events: none; /* Disabilita i clic su questi elementi */
+    user-select: none;    /* Impedisce la selezione accidentale */
+    color: inherit;       /* Mantiene i colori che abbiamo scelto noi */
+    text-decoration: none !important;
+}
+
+/* Riabilitiamo i clic solo sui pulsanti reali */
+.btn-maps, 
+.btn-filter, 
+.btn-location,
+a[href^="tel:"] {
+    pointer-events: auto !important;
+}
