@@ -1,6 +1,4 @@
-// Incrementa questo numero ogni volta che carichi modifiche su GitHub
-const CACHE_NAME = 'kidstable-v1.03'; 
-
+const CACHE_NAME = 'kidstable-v1.04';
 const ASSETS = [
   './',
   'index.html',
@@ -10,26 +8,21 @@ const ASSETS = [
   'KidsTable.png'
 ];
 
-// Installazione: scarica i file iniziali
+// Installazione: Salva i file base
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
-  self.skipWaiting(); 
+  self.skipWaiting();
 });
 
-// Attivazione: cancella automaticamente le vecchie versioni della cache
+// Attivazione: Pulizia vecchie versioni
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log('PWA: Rimozione vecchia cache', key);
-            return caches.delete(key);
-          }
+          if (key !== CACHE_NAME) return caches.delete(key);
         })
       );
     })
@@ -37,21 +30,27 @@ self.addEventListener('activate', (e) => {
   return self.clients.claim();
 });
 
-// Gestione Richieste: Strategia "Network First"
-// Prova a scaricare dal web, se non c'è connessione usa la cache.
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    fetch(e.request)
-      .then((response) => {
-        // Se la rete risponde, salva una copia aggiornata in cache
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(e.request, response.clone());
-          return response;
+// GESTIONE RICHIESTE INTELLIGENTE (Stale-while-revalidate)
+self.addEventListener('fetch', (event) => {
+  // Ignora le richieste non-GET (es. analytics)
+  if (event.request.method !== 'GET') return;
+
+  event.respondWith(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.match(event.request).then((cachedResponse) => {
+        const fetchedResponse = fetch(event.request).then((networkResponse) => {
+          // Se la rete risponde, aggiorna la cache per la prossima volta
+          if (networkResponse.status === 200) {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
+        }).catch(() => {
+          // Se la rete fallisce (offline o 429), non fare nulla, abbiamo la cache
         });
-      })
-      .catch(() => {
-        // Se la rete fallisce (sei offline), usa la cache
-        return caches.match(e.request);
-      })
+
+        // Restituisce la cache SUBITO, o aspetta la rete se non c'è in cache
+        return cachedResponse || fetchedResponse;
+      });
+    })
   );
 });
