@@ -2,38 +2,93 @@ const csvUrl = 'locali.csv';
 let localiData = [];
 let activeFilters = [];
 let userPos = null;
+const fallbackPhoto = 'img/no-photo.jpg';
 
 window.onload = () => {
     Papa.parse(csvUrl, {
-        download: true, header: true, skipEmptyLines: true,
+        download: true,
+        header: true,
+        skipEmptyLines: true,
         complete: (results) => {
             localiData = results.data.filter(l => l.nome);
             renderLocali(localiData);
-            autoGetLocation();
+            // Proviamo a prendere la posizione subito, ma senza alert se fallisce
+            autoGetLocation(true);
         }
     });
 };
 
-function autoGetLocation() {
+// Funzione principale per il GPS
+function getLocation() {
+    if (!navigator.geolocation) {
+        alert("Il tuo browser non supporta la geolocalizzazione.");
+        return;
+    }
+
+    const btn = document.querySelector('.btn-location');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "⌛ Ricerca posizione...";
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            userPos = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+            updateDistances();
+            btn.innerHTML = "📍 Posizione Attiva";
+            btn.classList.add('active');
+        },
+        (err) => {
+            btn.innerHTML = "📍 Cerca vicino a me";
+            // Gestione errori specifica per aiutare l'utente
+            switch(err.code) {
+                case 1:
+                    alert("Per favore, autorizza l'accesso al GPS nelle impostazioni del tuo browser per vedere i locali vicini.");
+                    break;
+                case 2:
+                    alert("Posizione non disponibile. Controlla di avere il GPS attivo sul telefono.");
+                    break;
+                case 3:
+                    alert("Il tempo per trovare la tua posizione è scaduto. Riprova tra un momento.");
+                    break;
+            }
+            console.warn(`Errore GPS (${err.code}): ${err.message}`);
+        },
+        { 
+            enableHighAccuracy: true, // Forza l'uso del GPS reale invece del Wi-Fi
+            timeout: 10000,           // Attesa massima 10 secondi
+            maximumAge: 0             // Non usare posizioni vecchie in cache
+        }
+    );
+}
+
+// Versione silenziosa per l'avvio
+function autoGetLocation(silent = false) {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            (pos) => { userPos = { lat: pos.coords.latitude, lon: pos.coords.longitude }; updateDistances(); },
-            () => { console.log("GPS Off"); },
-            { enableHighAccuracy: true, timeout: 10000 }
+            (pos) => { 
+                userPos = { lat: pos.coords.latitude, lon: pos.coords.longitude }; 
+                updateDistances(); 
+            },
+            () => { if(!silent) console.log("GPS non autorizzato all'avvio"); },
+            { enableHighAccuracy: true, timeout: 5000 }
         );
     }
 }
 
-function getLocation() { autoGetLocation(); }
-
 function updateDistances() {
     if (!userPos) return;
     localiData.forEach(l => {
-        if (l.lat && l.lng) l.distanzaKm = calculateDistance(userPos.lat, userPos.lon, parseFloat(l.lat), parseFloat(l.lng));
+        if (l.lat && l.lng) {
+            l.distanzaKm = calculateDistance(userPos.lat, userPos.lon, parseFloat(l.lat), parseFloat(l.lng));
+        }
     });
+    // Ordina per distanza
     localiData.sort((a, b) => (a.distanzaKm || 999) - (b.distanzaKm || 999));
+    
     const btn = document.querySelector('.btn-location');
-    if (btn) { btn.innerHTML = "📍 Posizione Attiva"; btn.classList.add('active'); }
+    if (btn) {
+        btn.innerHTML = "📍 Posizione Attiva";
+        btn.classList.add('active');
+    }
     applyFilters();
 }
 
@@ -47,7 +102,11 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
 function toggleFilter(btn, key) {
     btn.classList.toggle('active');
-    activeFilters.includes(key) ? activeFilters = activeFilters.filter(f => f !== key) : activeFilters.push(key);
+    if (activeFilters.includes(key)) {
+        activeFilters = activeFilters.filter(f => f !== key);
+    } else {
+        activeFilters.push(key);
+    }
     applyFilters();
 }
 
@@ -58,16 +117,19 @@ function applyFilters() {
 
 function renderLocali(data) {
     const lista = document.getElementById('lista-locali');
-    let html = ''; let countInRange = 0;
+    let html = ''; 
+    let countInRange = 0;
+
     data.forEach(l => {
         let distLabel = "";
         if (userPos && l.distanzaKm) {
             distLabel = `<span class="text-primary">• ${l.distanzaKm.toFixed(1)} km</span>`;
             if (l.distanzaKm <= 10) countInRange++;
         }
+        
         html += `
             <div class="col-12 col-md-6 mb-3">
-                <div class="card card-locale p-4 border-0">
+                <div class="card card-locale p-4 border-0 shadow-sm">
                     <h5 class="fw-bold mb-1">${l.nome}</h5>
                     <p class="text-muted small mb-2">${l.indirizzo} ${distLabel}</p>
                     <div class="mb-3">
@@ -77,73 +139,86 @@ function renderLocali(data) {
                         ${l.tovagliette_da_colorare === 'Sì' ? '<span class="badge-kids">🖍️ Tovagliette</span>' : ''}
                         ${l.menu_bimbi === 'Sì' ? '<span class="badge-kids">🍝 Menù Bimbi</span>' : ''}
                     </div>
-                    <button onclick="apriDettagli('${l.nome.replace(/'/g, "\\'")}')" class="btn btn-dettagli">🔍 FOTO E DETTAGLI</button>
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(l.nome + ' ' + l.indirizzo)}" target="_blank" class="btn-maps">PORTAMI QUI</a>
+                    <button onclick="apriDettagli('${l.nome.replace(/'/g, "\\'")}')" class="btn btn-dettagli mb-2">🔍 FOTO E DETTAGLI</button>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(l.nome + ' ' + l.indirizzo)}" target="_blank" class="btn-maps text-decoration-none">PORTAMI QUI</a>
                 </div>
             </div>`;
     });
-    lista.innerHTML = html || '<p class="text-center mt-5">Nessun locale trovato.</p>';
-    if (userPos) { document.getElementById('counter-container').classList.remove('d-none'); document.getElementById('n-locali').innerText = countInRange; }
+
+    lista.innerHTML = html || '<p class="text-center mt-5">Nessun locale trovato con questi filtri.</p>';
+    
+    const counterCont = document.getElementById('counter-container');
+    if (userPos && counterCont) {
+        counterCont.classList.remove('d-none');
+        document.getElementById('n-locali').innerText = countInRange;
+    }
 }
 
 function apriDettagli(nomeLocale) {
     const locale = localiData.find(l => l.nome === nomeLocale);
     if(!locale) return;
+
     document.getElementById('modalNomeLocale').innerText = locale.nome;
-    document.getElementById('imgGiochiInterna').src = locale.foto_giochi_interna || 'img/no-photo.jpg';
-    document.getElementById('imgGiochiEsterna').src = locale.foto_giochi_esterna || 'img/no-photo.jpg';
-    document.getElementById('imgBagno').src = locale.foto_fasciatoio || 'img/no-photo.jpg';
-    document.getElementById('imgKit').src = locale.foto_tovaglietta || 'img/no-photo.jpg';
-    new bootstrap.Modal(document.getElementById('modalDettagli')).show();
+    
+    // Gestione Foto con fallback su no-photo.jpg
+    document.getElementById('imgGiochiInterna').src = locale.foto_giochi_interna || fallbackPhoto;
+    document.getElementById('imgGiochiEsterna').src = locale.foto_giochi_esterna || fallbackPhoto;
+    document.getElementById('imgBagno').src = locale.foto_fasciatoio || fallbackPhoto;
+    document.getElementById('imgKit').src = locale.foto_tovaglietta || fallbackPhoto;
+
+    const modalElement = document.getElementById('modalDettagli');
+    const myModal = new bootstrap.Modal(modalElement);
+    myModal.show();
 }
+
+// --- LOGICA PWA INSTALLAZIONE ---
 
 let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Impedisce a Chrome (Android) di mostrare il banner automatico brutto
     e.preventDefault();
     deferredPrompt = e;
-    // Mostra il nostro banner personalizzato
     showInstallBanner("Installa ora");
 });
 
 window.addEventListener('load', () => {
-    // Controllo speciale per iOS (Safari non supporta beforeinstallprompt)
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
     if (isIOS && !isStandalone) {
         showInstallBanner("Scopri come");
-        document.getElementById('pwa-instruction').innerText = "Premi 'Condividi' e poi 'Aggiungi alla Home'";
-        document.getElementById('btn-pwa-install').onclick = () => {
-            alert("Su iPhone: premi il tasto 'Condividi' (quadrato con freccia) e seleziona 'Aggiungi alla schermata Home' 📲");
-        };
+        const instruction = document.getElementById('pwa-instruction');
+        if(instruction) instruction.innerText = "Premi 'Condividi' e poi 'Aggiungi alla Home'";
+        
+        const btnInstall = document.getElementById('btn-pwa-install');
+        if(btnInstall) {
+            btnInstall.onclick = () => {
+                alert("Su iPhone: premi il tasto 'Condividi' (il quadrato con la freccia in alto) e seleziona 'Aggiungi alla schermata Home' 📲");
+            };
+        }
     }
 });
 
 function showInstallBanner(btnText) {
     const banner = document.getElementById('pwa-install-banner');
     const btn = document.getElementById('btn-pwa-install');
-    if (banner) {
+    if (banner && btn) {
         banner.classList.remove('d-none');
         btn.innerText = btnText;
     }
 }
 
 function closePwaBanner() {
-    document.getElementById('pwa-install-banner').classList.add('d-none');
+    const banner = document.getElementById('pwa-install-banner');
+    if(banner) banner.classList.add('d-none');
 }
 
-// Gestione click su Android
 document.getElementById('btn-pwa-install')?.addEventListener('click', async () => {
     if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            console.log('Utente ha installato KidsTable');
-        }
+        if (outcome === 'accepted') console.log('PWA installata con successo');
         deferredPrompt = null;
         closePwaBanner();
     }
 });
-
