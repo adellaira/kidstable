@@ -3,117 +3,30 @@
     --orange-dark: #FF8C42;
     --cream: #FFF9F5;
     --text-color: #5D4037;
-    --kids-blue: #007AFF; /* Blu Apple style per i KM */
+    --kids-blue: #007AFF;
 }
 
-body {
-    background-color: var(--orange-pastel);
-    font-family: 'Nunito', sans-serif;
-    color: var(--text-color);
-    -webkit-font-smoothing: antialiased;
-}
+body { background-color: var(--orange-pastel); font-family: 'Nunito', sans-serif; color: var(--text-color); }
+.navbar { border-bottom: 3px solid var(--orange-dark); }
+#main-logo { height: 42px; width: auto; }
 
-/* Navbar & Logo */
-.navbar { border-bottom: 3px solid var(--orange-dark); padding: 10px 0; }
-#main-logo { height: 42px; width: auto; display: block; }
+.btn-location { background-color: white; border: 2px solid var(--orange-dark); color: var(--orange-dark); border-radius: 25px; font-weight: 800; padding: 12px; }
+.btn-location.active { background-color: #28a745; border-color: #218838; color: white; }
 
-/* Tasto Posizione */
-.btn-location {
-    background-color: white;
-    border: 2px solid var(--orange-dark);
-    color: var(--orange-dark);
-    border-radius: 25px;
-    font-weight: 800;
-    padding: 12px;
-    transition: all 0.3s ease;
-}
-.btn-location.active {
-    background-color: #28a745;
-    border-color: #218838;
-    color: white;
-}
-
-/* Filtri */
-.filter-container {
-    display: flex;
-    overflow-x: auto;
-    gap: 8px;
-    padding: 10px 0;
-    scrollbar-width: none;
-}
+.filter-container { display: flex; overflow-x: auto; gap: 8px; padding: 10px 0; scrollbar-width: none; }
 .filter-container::-webkit-scrollbar { display: none; }
+.btn-filter { background-color: white; border: 2px solid var(--orange-dark); color: var(--orange-dark); border-radius: 20px; padding: 6px 15px; font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
+.btn-filter.active { background-color: var(--orange-dark); color: white; }
 
-.btn-filter {
-    background-color: white;
-    border: 2px solid var(--orange-dark);
-    color: var(--orange-dark);
-    border-radius: 20px;
-    padding: 6px 15px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    white-space: nowrap;
-}
-.btn-filter.active {
-    background-color: var(--orange-dark);
-    color: white;
-}
+.card-locale { background-color: var(--cream); border: none; border-radius: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); margin-bottom: 1.5rem; }
+.card-locale h5, .card-locale p { pointer-events: none; user-select: none; }
 
-/* Card */
-.card-locale {
-    background-color: var(--cream);
-    border: none;
-    border-radius: 25px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-    transition: transform 0.2s;
-}
-.card-locale h5 { font-family: 'Fredoka', sans-serif; color: var(--orange-dark); font-weight: 600; }
+.text-primary { color: var(--kids-blue) !important; font-weight: 800 !important; background: rgba(0, 122, 255, 0.1); padding: 2px 6px; border-radius: 6px; }
+.badge-kids { background-color: white; color: #D35400; border: 1px solid #FFDAB9; padding: 4px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; margin: 2px; display: inline-block; }
 
-/* Chilometri Blu - Evidenti */
-.text-primary {
-    color: var(--kids-blue) !important;
-    font-weight: 800 !important;
-    background: rgba(0, 122, 255, 0.1);
-    padding: 2px 6px;
-    border-radius: 6px;
-}
+.btn-maps { background-color: var(--orange-dark); color: white; border-radius: 15px; font-weight: 800; padding: 12px; text-align: center; display: block; text-decoration: none; margin-top: 10px; }
+.btn-dettagli { background-color: white; color: var(--orange-dark); border: 2px solid var(--orange-dark); border-radius: 15px; font-weight: 700; width: 100%; padding: 10px; margin-top: 5px; }
 
-.badge-kids {
-    background-color: white;
-    color: #D35400;
-    border: 1px solid #FFDAB9;
-    padding: 4px 10px;
-    border-radius: 10px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    margin: 4px 4px 0 0;
-    display: inline-block;
-}
-
-.btn-maps {
-    background-color: var(--orange-dark);
-    color: white;
-    border-radius: 15px;
-    font-weight: 800;
-    padding: 12px;
-    text-align: center;
-    display: block;
-    text-decoration: none;
-    margin-top: 10px;
-}
-
-/* Impedisce al browser di trasformare indirizzi e nomi in link automatici */
-.card-locale h5, 
-.card-locale p {
-    pointer-events: none; /* Disabilita i clic su questi elementi */
-    user-select: none;    /* Impedisce la selezione accidentale */
-    color: inherit;       /* Mantiene i colori che abbiamo scelto noi */
-    text-decoration: none !important;
-}
-
-/* Riabilitiamo i clic solo sui pulsanti reali */
-.btn-maps, 
-.btn-filter, 
-.btn-location,
-a[href^="tel:"] {
-    pointer-events: auto !important;
-}
+.item-gallery { min-width: 180px; flex-shrink: 0; }
+.item-gallery img { height: 130px; width: 100%; object-fit: cover; background: #f0f0f0; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
