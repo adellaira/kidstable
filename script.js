@@ -52,44 +52,35 @@ function getLocation() {
     
     navigator.geolocation.getCurrentPosition(
         (position) => {
-            userPos = {
-                lat: position.coords.latitude,
-                lon: position.coords.longitude
-            };
-
-            // Calcola distanza per ogni locale nel set di dati originale
-            localiData.forEach(locale => {
-                if (locale.lat && locale.lng) {
-                    locale.distanzaKm = calculateDistance(
-                        userPos.lat, 
-                        userPos.lon, 
-                        parseFloat(locale.lat), 
-                        parseFloat(locale.lng)
-                    );
-                } else {
-                    locale.distanzaKm = null;
-                }
+            // ... (logica di successo uguale a prima)
+            userPos = { lat: position.coords.latitude, lon: position.coords.longitude };
+            localiData.forEach(l => {
+                if(l.lat && l.lng) l.distanzaKm = calculateDistance(userPos.lat, userPos.lon, parseFloat(l.lat), parseFloat(l.lng));
             });
-
-            // Ordina per distanza
-            localiData.sort((a, b) => {
-                if (a.distanzaKm === null) return 1;
-                if (b.distanzaKm === null) return -1;
-                return a.distanzaKm - b.distanzaKm;
-            });
-
-            btn.innerHTML = "📍 Ordinato per distanza";
+            localiData.sort((a, b) => a.distanzaKm - b.distanzaKm);
+            btn.innerHTML = "📍 Vicino a te";
             btn.classList.add('success');
-            
-            // Aggiorna la vista applicando eventuali filtri già attivi
             applyFilters();
         },
         (error) => {
-            console.error("Errore Geolocalizzazione:", error);
-            alert("Attiva i permessi GPS per trovare i locali vicino a te.");
+            // GESTIONE ERRORE SPECIFICA
             btn.innerHTML = "📍 Cerca vicino a me";
+            
+            let messaggio = "Per vedere i locali vicini, KidsTable ha bisogno della tua posizione.";
+            
+            // Rileva se è iPhone/iPad
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+            if (error.code === error.PERMISSION_DENIED) {
+                if (isIOS) {
+                    messaggio = "⚠️ Accesso negato.\n\nPer attivarlo su iPhone:\n1. Vai in Impostazioni\n2. Privacy e sicurezza\n3. Localizzazione\n4. Safari (o il tuo browser)\n5. Seleziona 'Mentre usi l'app'";
+                } else {
+                    messaggio = "⚠️ Per favore, attiva i permessi di posizione nelle impostazioni del browser per ordinare i locali.";
+                }
+            }
+            alert(messaggio);
         },
-        { enableHighAccuracy: true }
+        { enableHighAccuracy: true, timeout: 10000 }
     );
 }
 
