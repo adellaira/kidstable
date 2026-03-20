@@ -1,13 +1,9 @@
-/**
- * KidsTable - Auto-Location & Distances
- */
-
 const csvUrl = 'locali.csv';
 let localiData = [];
 let activeFilters = [];
-let userPos = null;
+let userPos = null; // Rimane null finché il GPS non risponde
 
-// 1. CARICAMENTO DATI E AVVIO AUTOMATICO
+// 1. CARICAMENTO DATI
 window.onload = () => {
     Papa.parse(csvUrl, {
         download: true,
@@ -15,66 +11,60 @@ window.onload = () => {
         skipEmptyLines: true,
         complete: (results) => {
             localiData = results.data.filter(l => l.nome && l.nome.trim() !== "");
-            
-            // Appena i dati sono pronti, proviamo a localizzare l'utente
-            autoGetLocation();
+            renderLocali(localiData); // Prima visualizzazione senza KM
+            autoGetLocation(); // Prova subito a chiedere il GPS
         }
     });
 };
 
-// 2. TENTATIVO DI LOCALIZZAZIONE AUTOMATICA
+// 2. FUNZIONE GPS
 function autoGetLocation() {
     if (navigator.geolocation) {
-        // Chiediamo la posizione in modo silenzioso
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                successLocation(position);
+                userPos = {
+                    lat: position.coords.latitude,
+                    lon: position.coords.longitude
+                };
+                updateDistances();
             },
             (error) => {
-                // Se fallisce (permessi non dati), mostriamo i locali senza distanza
-                console.log("Posizione automatica negata o non disponibile.");
-                renderLocali(localiData);
+                console.log("GPS non attivo o negato.");
             },
-            { enableHighAccuracy: true, timeout: 5000 }
+            { enableHighAccuracy: true, timeout: 10000 }
         );
-    } else {
-        renderLocali(localiData);
     }
 }
 
-// 3. LOGICA DI SUCCESSO (Usata sia all'avvio che al click del tasto)
-function successLocation(position) {
-    userPos = {
-        lat: position.coords.latitude,
-        lon: position.coords.longitude
-    };
+// Chiamata dal tasto manuale
+function getLocation() {
+    autoGetLocation();
+}
 
-    const btn = document.querySelector('.btn-location');
+// 3. CALCOLO E ORDINAMENTO
+function updateDistances() {
+    if (!userPos) return;
 
-    // Calcolo KM per tutti
     localiData.forEach(l => {
         if (l.lat && l.lng) {
             l.distanzaKm = calculateDistance(userPos.lat, userPos.lon, parseFloat(l.lat), parseFloat(l.lng));
         }
     });
 
-    // Ordina dal più vicino
+    // Ordina per i più vicini
     localiData.sort((a, b) => (a.distanzaKm || 999) - (b.distanzaKm || 999));
-
+    
+    // Aggiorna il tasto per dare feedback
+    const btn = document.querySelector('.btn-location');
     if (btn) {
-        btn.innerHTML = "📍 Vicino a te";
-        btn.classList.add('success');
+        btn.innerHTML = "📍 Posizione Attiva";
+        btn.classList.add('active');
     }
 
     applyFilters();
 }
 
-// Funzione chiamata dal tasto manuale (per chi aveva negato i permessi all'inizio)
-function getLocation() {
-    autoGetLocation();
-}
-
-// 4. CALCOLO DISTANZA
+// 4. FORMULA MATEMATICA
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -84,7 +74,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-// 5. GESTIONE FILTRI
+// 5. FILTRI
 function toggleFilter(btn, filterKey) {
     btn.classList.toggle('active');
     if (activeFilters.includes(filterKey)) {
@@ -113,12 +103,12 @@ function renderLocali(data) {
     let countInRange = 0;
 
     data.forEach(l => {
-        // Controlliamo se è entro i 10km per il contatore
-        if (userPos && l.distanzaKm <= 10) countInRange++;
-
-        const distLabel = l.distanzaKm 
-            ? `<span class="text-primary fw-bold ms-1">• ${l.distanzaKm.toFixed(1)} km</span>` 
-            : '';
+        // Se il GPS è attivo (userPos non è null), mostriamo i KM blu
+        let distLabel = "";
+        if (userPos && l.distanzaKm) {
+            distLabel = `<span class="text-primary fw-bold ms-1">• ${l.distanzaKm.toFixed(1)} km</span>`;
+            if (l.distanzaKm <= 10) countInRange++;
+        }
 
         html += `
             <div class="col-12 col-md-6 mb-3">
@@ -145,6 +135,7 @@ function renderLocali(data) {
 
     lista.innerHTML = html || '<p class="text-center mt-5">Nessun locale trovato con questi filtri.</p>';
 
+    // Mostra il contatore solo se il GPS ha dato una posizione
     if (userPos) {
         counterCont.classList.remove('d-none');
         counterNum.innerText = countInRange;
